@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Good Route App</title>
+
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Leaflet Map -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet/dist/leaflet.css"
+  />
+
+  <!-- SheetJS -->
+  <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+
+</head>
+
+<body>
+
+  <div class="container">
+    <h1>Good in the Hood Route Planner</h1>
+
+    <input type="file" id="excelFile" />
+
+    <button onclick="loadExcel()">
+      Generate Route
+    </button>
+
+    <div id="deliveryList"></div>
+
+    <div id="map"></div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="script.js"></script>
+
+</body>
+</html>
