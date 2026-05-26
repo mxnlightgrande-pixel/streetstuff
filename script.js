@@ -4,14 +4,21 @@ L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
 }).addTo(map);
 
+let allStops = [];
+
 async function loadExcel() {
 
     try {
 
+        // Clear previous markers
+        allStops = [];
+
+        document.getElementById('deliveryList').innerHTML = "";
+
         const fileInput = document.getElementById('excelFile');
 
         if (!fileInput.files.length) {
-            alert("Please upload an Excel file first.");
+            alert("Please upload an Excel file.");
             return;
         }
 
@@ -27,11 +34,9 @@ async function loadExcel() {
 
         console.log(rows);
 
-        document.getElementById('deliveryList').innerHTML = "";
-
         for (const row of rows) {
 
-            // CHANGE THESE TO MATCH YOUR HEADERS
+            // Flexible column matching
             const deliveryGroup =
                 row["delivery_group"] ||
                 row["delivery_group_"] ||
@@ -45,16 +50,12 @@ async function loadExcel() {
                 row["suburb"] ||
                 row["Suburb"];
 
-            if (!address || !suburb) {
-                console.log("Missing address:", row);
-                continue;
-            }
+            if (!address || !suburb) continue;
 
             const fullAddress =
                 `${address}, ${suburb}, NSW Australia`;
 
-            console.log(fullAddress);
-
+            // Geocode address
             const response = await fetch(
                 `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(fullAddress)}`
             );
@@ -66,36 +67,71 @@ async function loadExcel() {
                 const lat = parseFloat(result[0].lat);
                 const lon = parseFloat(result[0].lon);
 
+                allStops.push(fullAddress);
+
+                // Add marker
                 L.marker([lat, lon])
                     .addTo(map)
-                    .bindPopup(fullAddress);
+                    .bindPopup(`
+                        <strong>${deliveryGroup || "No Group"}</strong>
+                        <br>
+                        ${fullAddress}
+                    `);
 
                 map.setView([lat, lon], 11);
 
+                // Add delivery card
                 document.getElementById('deliveryList').innerHTML += `
                     <div style="
                         background:white;
-                        padding:10px;
+                        padding:12px;
                         margin-bottom:10px;
-                        border-radius:12px;
+                        border-radius:16px;
+                        box-shadow:0 2px 8px rgba(0,0,0,0.1);
                     ">
-                        <strong>${deliveryGroup || "No Group"}</strong><br>
+                        <strong>${deliveryGroup || "No Group"}</strong>
+                        <br>
                         ${fullAddress}
                     </div>
                 `;
-
-            } else {
-
-                console.log("Address not found:", fullAddress);
-
             }
+        }
+
+        // Add Google Maps Button
+        if (allStops.length > 0) {
+
+            let mapsURL =
+                "https://www.google.com/maps/dir/";
+
+            allStops.forEach(stop => {
+                mapsURL += encodeURIComponent(stop) + "/";
+            });
+
+            document.getElementById('deliveryList').innerHTML += `
+                <button
+                    onclick="window.open('${mapsURL}', '_blank')"
+                    style="
+                        width:100%;
+                        padding:16px;
+                        background:#34A853;
+                        color:white;
+                        border:none;
+                        border-radius:18px;
+                        font-size:18px;
+                        cursor:pointer;
+                        margin-top:20px;
+                    "
+                >
+                    Open Route in Google Maps
+                </button>
+            `;
         }
 
     } catch(error) {
 
         console.error(error);
 
-        alert("Something went wrong. Check console.");
+        alert("Error loading Excel file.");
 
     }
 }
