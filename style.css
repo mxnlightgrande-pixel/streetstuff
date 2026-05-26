@@ -1,0 +1,33 @@
+body {
+  font-family: Arial;
+  margin: 0;
+  padding: 0;
+  background: #f7f7f7;
+}
+
+.container {
+  padding: 20px;
+}
+
+h1 {
+  color: #6561A8;
+}
+
+#map {
+  height: 600px;
+  margin-top: 20px;
+  border-radius: 20px;
+}
+
+button {
+  padding: 12px 20px;
+  border: none;
+  background: #6561A8;
+  color: white;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+input {
+  margin-bottom: 10px;
+}
