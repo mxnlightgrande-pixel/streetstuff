@@ -141,8 +141,11 @@
           const addresses =
             groups[groupName];
 
-          let googleMapsURL =
-            "https://www.google.com/maps/dir/";
+let googleMapsURL =
+  "https://www.google.com/maps/dir/" +
+  encodeURIComponent(
+    "754 Darling St, Rozelle NSW Australia"
+  ) + "/";
 
           let addressHTML = "";
 
