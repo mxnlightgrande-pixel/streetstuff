@@ -6,9 +6,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Route Planner</title>
+  <title>Delivery Route Planner</title>
 
-  <!-- SheetJS -->
   <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
 
   <style>
@@ -24,7 +23,7 @@
     }
 
     button {
-      padding: 14px 20px;
+      padding: 12px 18px;
       border: none;
       border-radius: 12px;
       background: #6561A8;
@@ -33,11 +32,16 @@
       margin-top: 10px;
     }
 
-    .card {
+    .groupCard {
       background: white;
-      padding: 12px;
-      border-radius: 12px;
-      margin-top: 10px;
+      padding: 16px;
+      border-radius: 16px;
+      margin-top: 20px;
+    }
+
+    .address {
+      padding: 8px 0;
+      border-bottom: 1px solid #eee;
     }
 
   </style>
@@ -56,15 +60,15 @@
 
   <br>
 
-  <button onclick="generateRoute()">
-    Generate Route
+  <button onclick="generateRoutes()">
+    Generate Routes
   </button>
 
   <div id="results"></div>
 
   <script>
 
-    async function generateRoute() {
+    async function generateRoutes() {
 
       try {
 
@@ -73,7 +77,7 @@
 
         if (!fileInput.files.length) {
 
-          alert("Please upload an Excel file.");
+          alert("Upload an Excel file first.");
 
           return;
         }
@@ -92,12 +96,16 @@
 
         console.log(rows);
 
-        let googleMapsURL =
-          "https://www.google.com/maps/dir/";
-
-        let output = "";
+        // Store groups
+        const groups = {};
 
         for (const row of rows) {
+
+          const deliveryGroup =
+            row.delivery_group ||
+            row.delivery_group_ ||
+            row["Delivery Group"] ||
+            "Ungrouped";
 
           const address =
             row.address ||
@@ -109,41 +117,63 @@
             row.Suburb ||
             row.SUBURB;
 
-          const group =
-            row.delivery_group ||
-            row.delivery_group_ ||
-            row["Delivery Group"] ||
-            "No Group";
-
-          if (!address || !suburb) {
-
-            console.log("Missing row:", row);
-
+          if (!address || !suburb)
             continue;
-          }
 
           const fullAddress =
             `${address}, ${suburb}, NSW Australia`;
 
-          googleMapsURL +=
-            encodeURIComponent(fullAddress) + "/";
+          // Create group if missing
+          if (!groups[deliveryGroup]) {
+
+            groups[deliveryGroup] = [];
+          }
+
+          groups[deliveryGroup]
+            .push(fullAddress);
+        }
+
+        let output = "";
+
+        // Create cards for each group
+        for (const groupName in groups) {
+
+          const addresses =
+            groups[groupName];
+
+          let googleMapsURL =
+            "https://www.google.com/maps/dir/";
+
+          let addressHTML = "";
+
+          addresses.forEach(address => {
+
+            googleMapsURL +=
+              encodeURIComponent(address) + "/";
+
+            addressHTML += `
+              <div class="address">
+                ${address}
+              </div>
+            `;
+          });
 
           output += `
-            <div class="card">
-              <strong>${group}</strong>
-              <br>
-              ${fullAddress}
+            <div class="groupCard">
+
+              <h2>${groupName}</h2>
+
+              ${addressHTML}
+
+              <button
+                onclick="window.open('${googleMapsURL}', '_blank')"
+              >
+                Open ${groupName} Route
+              </button>
+
             </div>
           `;
         }
-
-        output += `
-          <button
-            onclick="window.open('${googleMapsURL}', '_blank')"
-          >
-            Open Route in Google Maps
-          </button>
-        `;
 
         document.getElementById(
           "results"
@@ -156,7 +186,7 @@
         console.error(error);
 
         alert(
-          "Error. Press F12 then Console."
+          "Something broke. Press F12 → Console."
         );
       }
     }
