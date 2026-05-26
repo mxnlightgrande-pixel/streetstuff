@@ -1,14 +1,19 @@
 <!DOCTYPE html>
 <html>
+
 <head>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>Good Route App</title>
 
   <link rel="stylesheet" href="style.css">
 
-  <!-- Leaflet Map -->
+  <!-- Leaflet -->
   <link
     rel="stylesheet"
-    href="https://unpkg.com/leaflet/dist/leaflet.css"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
   />
 
   <!-- SheetJS -->
@@ -19,21 +24,26 @@
 <body>
 
   <div class="container">
+
     <h1>Good in the Hood Route Planner</h1>
 
-    <input type="file" id="excelFile" />
+    <input type="file" id="excelFile" accept=".xlsx,.xls,.csv">
 
-    <button onclick="loadExcel()">
+    <button id="generateBtn">
       Generate Route
     </button>
 
     <div id="deliveryList"></div>
 
     <div id="map"></div>
+
   </div>
 
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
   <script src="script.js"></script>
 
 </body>
+
 </html>
